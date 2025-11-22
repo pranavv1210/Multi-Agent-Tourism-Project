@@ -1,3 +1,4 @@
+
 # 🌍 Multi-Agent Tourism Planner
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
@@ -8,6 +9,12 @@
 A production-ready, AI-powered travel planning system that orchestrates specialized agents to provide real-time weather forecasts and tourist attractions for destinations worldwide.
 
 ---
+
+<p align="center">
+    <video src="frontend/public/demo.mp4" controls width="600" style="max-width:100%;border-radius:16px;box-shadow:0 4px 24px rgba(76,201,240,0.15);margin-bottom:1.5rem;">
+        Your browser does not support the video tag.
+    </video>
+</p>
 
 ## 📋 Table of Contents
 
