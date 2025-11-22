@@ -10,8 +10,8 @@ A production-ready, AI-powered travel planning system that orchestrates speciali
 
 ---
 
+### Demo Preview
 <p align="center">
-    <strong style="font-size:1.3em;display:block;margin-bottom:0.5em;">Demo Preview</strong>
     <img src="demo.gif" width="600" style="max-width:100%;border-radius:16px;box-shadow:0 4px 24px rgba(76,201,240,0.15);margin-bottom:1.5rem;" alt="Demo GIF"/>
 </p>
 
