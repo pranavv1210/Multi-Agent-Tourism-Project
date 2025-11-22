@@ -7,10 +7,13 @@
 2. Connect your GitHub repository: `pranavv1210/Multi-Agent-Tourism-Project`
 3. Configure Service:
    - **Name**: tourism-orchestrator-backend (or your choice)
-   - **Root Directory**: Leave empty (use project root)
+   - **Root Directory**: **LEAVE BLANK** (Render must read runtime.txt from project root)
    - **Environment**: Python 3
+   - **Region**: Choose closest to your users
+   - **Branch**: main
    - **Build Command**: `pip install -r backend/requirements.txt`
    - **Start Command**: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Auto-Deploy**: Yes (optional, deploys on every push)
 4. Add Environment Variables:
    - `USER_AGENT` = `tourism-planner/1.0 (+your-email@example.com)`
    - `ALLOWED_ORIGINS` = `https://your-frontend-url.vercel.app`
@@ -18,7 +21,11 @@
 5. Deploy and wait for build to complete
 6. Test health check: `https://your-backend.onrender.com/health`
 
-**Important**: The `runtime.txt` file must be in the repository root (not backend folder) for Render to detect it.
+**CRITICAL**: 
+- The `runtime.txt` file MUST be in the project root (not backend folder)
+- Root Directory MUST be blank for Render to detect runtime.txt
+- If you previously set Root Directory to "backend", delete it and save
+- Render will look for runtime.txt in the repository root to determine Python version
 
 ### Option 2: Using render.yaml (Infrastructure as Code)
 Create `render.yaml` in project root:
@@ -40,11 +47,31 @@ services:
 ```
 
 ### Troubleshooting Render Build Errors
-If you encounter `metadata-generation-failed` errors:
-1. The `runtime.txt` file specifies Python 3.11.9
-2. Ensure all dependencies are compatible with Python 3.11
-3. Check build logs for specific package causing issues
-4. Try clearing Render's build cache (Settings → Clear build cache)
+
+#### Python Version Issues
+If Render is using Python 3.13.4 instead of 3.11.9:
+1. **Verify runtime.txt location**: Must be in project root, not backend folder
+2. **Check Root Directory setting**: Go to Render Dashboard → Your Service → Settings → Root Directory
+   - This field MUST be blank/empty
+   - If it says "backend", clear it and save
+   - Redeploy the service
+3. **Verify runtime.txt in repository**: 
+   ```bash
+   git show HEAD:runtime.txt  # Should show: python-3.11.9
+   ```
+4. **Force rebuild**: Render Dashboard → Manual Deploy → Clear build cache & deploy
+
+#### Metadata Generation Failed (pydantic-core)
+If you see "Cargo, the Rust package manager, is not installed":
+- This happens when Render uses Python 3.13 instead of 3.11
+- pydantic-core 2.18.2 requires pre-built wheels for Python 3.11
+- Follow "Python Version Issues" steps above to fix
+
+#### Other Common Issues
+1. **429 from Nominatim/Overpass**: Increase TTL or reduce query frequency
+2. **Empty place**: Ensure message contains a recognizable place or extend heuristics
+3. **Weather missing precipitation**: Possible time mismatch; retry automatically applied
+4. **Build timeout**: Large dependencies may need longer build time (check Render plan limits)
 
 ## Frontend (Vercel)
 1. Import project.
