@@ -25,8 +25,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next: Callable):
         """Check rate limit before processing request."""
-        # Skip rate limiting for health endpoint
-        if request.url.path == "/health":
+        # Skip rate limiting for health endpoint and OPTIONS requests
+        if request.url.path == "/health" or request.method == "OPTIONS":
             return await call_next(request)
 
         client_ip = request.client.host if request.client else "unknown"
