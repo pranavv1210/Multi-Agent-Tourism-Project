@@ -65,17 +65,42 @@ services:
 ### Troubleshooting Render Build Errors
 
 #### Python Version Issues
-If Render is using Python 3.13.4 instead of 3.11.9:
-1. **Verify runtime.txt location**: Must be in project root, not backend folder
-2. **Check Root Directory setting**: Go to Render Dashboard → Your Service → Settings → Root Directory
-   - This field MUST be blank/empty
-   - If it says "backend", clear it and save
-   - Redeploy the service
-3. **Verify runtime.txt in repository**: 
+**CRITICAL FIX**: Render's auto-detection of `runtime.txt` fails when using custom build commands. You MUST manually configure the Python version in Render Dashboard:
+
+1. **Dashboard Manual Override** (Recommended - Immediate Fix):
+   - Go to Render Dashboard → Your Service → Settings
+   - Scroll to "Environment" section
+   - Look for "Python Version" dropdown or field
+   - If not visible, check if there's a "Native Environment" or similar toggle - enable it
+   - Set Python version to **3.11** (Render may show 3.11.x where x is latest patch)
+   - Save changes
+   - Clear build cache and redeploy
+
+2. **Verify File Detection** (If dashboard override not available):
+   - The repository now contains THREE version specification files:
+     - `runtime.txt` (root): `python-3.11.9`
+     - `.python-version` (root): `3.11.9`
+     - `backend/runtime.txt`: `python-3.11.9`
+   - Render should detect at least one of these
+   - If still using 3.13.4, Root Directory setting is interfering
+
+3. **Root Directory Configuration**:
+   - **MUST BE BLANK** for Render to read root-level version files
+   - If set to `backend`, Render ignores root `runtime.txt` and `.python-version`
+   - With blank Root Directory:
+     - Build Command: `pip install -r backend/requirements.txt`
+     - Start Command: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+4. **Force Version Selection**:
    ```bash
-   git show HEAD:runtime.txt  # Should show: python-3.11.9
+   # In Render Shell (if available), verify Python version:
+   python --version  # Should show 3.11.9, not 3.13.4
    ```
-4. **Force rebuild**: Render Dashboard → Manual Deploy → Clear build cache & deploy
+
+If Render is using Python 3.13.4 despite all version files:
+- This is a Render platform issue with custom build commands overriding version detection
+- Temporary workaround: Use `render.yaml` (Blueprint) instead of dashboard configuration
+- The repository now includes `render.yaml` - delete your manual service and deploy via Blueprint
 
 #### Metadata Generation Failed (pydantic-core)
 If you see "Cargo, the Rust package manager, is not installed":
