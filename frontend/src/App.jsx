@@ -33,25 +33,35 @@ function App() {
 
   // Mobile scroll: hide navbar and textbox on scroll down, show on scroll up
   useEffect(() => {
+    let ticking = false;
+    let lastY = lastScrollY;
+    const threshold = 12; // px
     const handleScroll = () => {
-      if (window.innerWidth > 768) return; // Only on mobile/tablet
+      if (window.innerWidth > 768) return;
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 40) {
-        // Scrolling down
-        setShowNavbar(false);
-        setShowTextbox(false);
-        scrollDir.current = 'down';
-      } else if (currentScrollY < lastScrollY) {
-        // Scrolling up
-        setShowNavbar(true);
-        setShowTextbox(true);
-        scrollDir.current = 'up';
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (currentScrollY > lastY + threshold && currentScrollY > 40) {
+            setShowNavbar(false);
+            setShowTextbox(false);
+            scrollDir.current = 'down';
+            lastY = currentScrollY;
+          } else if (currentScrollY < lastY - threshold) {
+            setShowNavbar(true);
+            setShowTextbox(true);
+            scrollDir.current = 'up';
+            lastY = currentScrollY;
+          }
+          setLastScrollY(currentScrollY);
+          ticking = false;
+        });
+        ticking = true;
       }
-      setLastScrollY(currentScrollY);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+    // eslint-disable-next-line
+  }, []);
 
   // Load shared plan from URL on mount
   useEffect(() => {
@@ -107,7 +117,7 @@ function App() {
           </div>
         </div>
       )}
-      {welcomeComplete && showNavbar && <Navbar />}
+      <div className={`navbar-anim${showNavbar ? ' shown' : ' hidden'}`}>{welcomeComplete && <>{showNavbar && <Navbar />}</>}</div>
       {welcomeComplete && !hasSearched && (
         <>
           <Landing>
@@ -129,11 +139,11 @@ function App() {
       )}
       {welcomeComplete && hasSearched && (
         <main className="results-area">
-          {showTextbox && (
-            <div className="search-bar-sticky visible">
+          <div className={`search-bar-sticky${showTextbox ? ' visible' : ' hidden'}`}>
+            {showTextbox && (
               <InputForm onResult={handleResult} setLoading={setLoading} setError={setError} clearOnMount={true} setShowColdStart={setShowColdStart} />
-            </div>
-          )}
+            )}
+          </div>
           {loading && (
             <div className="loading-container">
               <div className="plane-loader">

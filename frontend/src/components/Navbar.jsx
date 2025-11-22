@@ -8,11 +8,6 @@ const Navbar = () => {
     }
   };
 
-  const handleAuthClick = (action) => {
-    // Placeholder for future authentication implementation
-    console.log(`${action} clicked - authentication not yet implemented`);
-  };
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -21,13 +16,10 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-inner">
         <div className="brand" onClick={scrollToTop} style={{ cursor: 'pointer' }}>Tourism Orchestrator</div>
-        <div className="nav-center">
+        <div className="nav-center" style={{ marginLeft: 'auto' }}>
           <button className="nav-btn" onClick={() => scrollToSection('features')}>Features</button>
           <button className="nav-btn" onClick={() => scrollToSection('about')}>About</button>
           <button className="nav-btn" onClick={() => scrollToSection('how-it-works')}>How It Works</button>
-        </div>
-        <div className="nav-auth">
-          <button className="auth-btn combined-auth-btn" onClick={() => handleAuthClick('Auth')}>Login / Signup</button>
         </div>
       </div>
     </nav>

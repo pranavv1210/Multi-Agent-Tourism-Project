@@ -23,7 +23,23 @@ body {
 
 .app-shell { min-height:100%; display:flex; flex-direction:column; width:100%; }
 
-.navbar { 
+/* Navbar animation wrapper for smooth hide/show */
+.navbar-anim {
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s cubic-bezier(0.4,0,0.2,1);
+  will-change: transform, opacity;
+  z-index: 51;
+}
+.navbar-anim.shown {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.navbar-anim.hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+.navbar {
   background: rgba(10, 37, 64, 0.95);
   backdrop-filter: blur(10px);
   padding:1rem 1.5rem;
@@ -618,6 +634,7 @@ body {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Smooth search bar sticky animation */
 .search-bar-sticky {
   position: relative;
   top: 0;
@@ -628,7 +645,8 @@ body {
   border-radius: var(--radius);
   margin-bottom: 24px;
   z-index: 10;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1), height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.35s cubic-bezier(0.4,0,0.2,1), margin 0.35s cubic-bezier(0.4,0,0.2,1);
+  will-change: opacity, transform, height, padding, margin;
 }
 
 .search-bar-sticky.hidden {
