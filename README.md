@@ -11,9 +11,7 @@ A production-ready, AI-powered travel planning system that orchestrates speciali
 ---
 
 <p align="center">
-    <video src="frontend/public/demo.mp4" controls width="600" style="max-width:100%;border-radius:16px;box-shadow:0 4px 24px rgba(76,201,240,0.15);margin-bottom:1.5rem;">
-        Your browser does not support the video tag.
-    </video>
+    <img src="frontend/public/demo.gif" width="600" style="max-width:100%;border-radius:16px;box-shadow:0 4px 24px rgba(76,201,240,0.15);margin-bottom:1.5rem;" alt="Demo GIF"/>
 </p>
 
 ## 📋 Table of Contents
