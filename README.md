@@ -52,11 +52,11 @@ The Multi-Agent Tourism Planner is a sophisticated web application that combines
 
 ```mermaid
 graph TB
-    subgraph "User Interface"
+    subgraph UI["User Interface"]
         BROWSER[Web Browser]
     end
     
-    subgraph "Frontend - React SPA"
+    subgraph FE["Frontend - React SPA"]
         APP[App.jsx - State Manager]
         INPUT[InputForm - Search Interface]
         RESULT[ResultCard - Data Display]
@@ -64,29 +64,29 @@ graph TB
         STORAGE[localStorage - Persistence]
     end
     
-    subgraph "Backend - FastAPI"
-        API[/api/plan Endpoint]
+    subgraph BE["Backend - FastAPI"]
+        API[API plan Endpoint]
         PARENT[Parent Agent - Orchestrator]
         
-        subgraph "Specialized Agents"
+        subgraph SA["Specialized Agents"]
             WEATHER[Weather Agent]
             PLACES[Places Agent]
         end
         
-        subgraph "Services"
+        subgraph SVC["Services"]
             GEO[Geocoding Service]
             OPENMETE[Open-Meteo Client]
             OVERP[Overpass Client]
         end
         
-        subgraph "Utilities"
+        subgraph UTIL["Utilities"]
             RETRY[Retry Logic]
             CACHE[TTL Cache]
             LOG[Logging]
         end
     end
     
-    subgraph "External APIs"
+    subgraph EXT["External APIs"]
         NOM[Nominatim Geocoding]
         OM[Open-Meteo Weather]
         OVP[Overpass POI]
