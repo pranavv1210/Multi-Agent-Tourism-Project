@@ -10,41 +10,41 @@ The backend is a **FastAPI-based multi-agent tourism orchestration system** that
 
 ```mermaid
 graph TB
-    subgraph "External APIs"
+    subgraph EXT["External APIs"]
         NOM[Nominatim Geocoding API]
         OM[Open-Meteo Weather API]
         OVP[Overpass POI API]
     end
 
-    subgraph "FastAPI Application"
+    subgraph APP["FastAPI Application"]
         MAIN[main.py - FastAPI App]
-        HEALTH[/health endpoint]
+        HEALTH[health endpoint]
         
-        subgraph "API Layer"
-            PLAN[plan.py - /api/plan]
+        subgraph API["API Layer"]
+            PLAN[plan.py - api/plan]
             REQ[PlanRequest Model]
             RES[PlanResponse Model]
         end
         
-        subgraph "Orchestration Layer"
+        subgraph ORCH["Orchestration Layer"]
             PARENT[parent_agent.py]
             EXTRACT[extract_place_from_text]
             DETECT[detect_intent]
-            ORCH[orchestrate]
+            ORCHESTRATE[orchestrate]
         end
         
-        subgraph "Specialized Agents"
+        subgraph AGENTS["Specialized Agents"]
             WEATHER[weather_agent.py]
             PLACES[places_agent.py]
         end
         
-        subgraph "Service Layer"
+        subgraph SVC["Service Layer"]
             GEO[geocode.py]
             OPENMETE[open_meteo.py]
             OVERP[overpass.py]
         end
         
-        subgraph "Utilities"
+        subgraph UTIL["Utilities"]
             RETRY[retry.py]
             CACHE[cache.py]
             LOG[logging_config.py]
@@ -62,9 +62,9 @@ graph TB
     GEO -->|Query| NOM
     GEO -.->|Fallback| STATICMAP[Static Fallback Map]
     
-    PARENT -->|Coordinate Agents| ORCH
-    ORCH -->|Async Call| WEATHER
-    ORCH -->|Async Call| PLACES
+    PARENT -->|Coordinate Agents| ORCHESTRATE
+    ORCHESTRATE -->|Async Call| WEATHER
+    ORCHESTRATE -->|Async Call| PLACES
     
     WEATHER -->|Fetch| OPENMETE
     OPENMETE -->|HTTP GET| OM
@@ -84,7 +84,7 @@ graph TB
     LOG -.->|Structured Logging| WEATHER
     LOG -.->|Structured Logging| PLACES
     
-    ORCH -->|Build Response| RES
+    ORCHESTRATE -->|Build Response| RES
     RES -->|Return JSON| CLIENT
     
     MAIN -->|Mount Router| PLAN
