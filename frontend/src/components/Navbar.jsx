@@ -13,10 +13,14 @@ const Navbar = () => {
     console.log(`${action} clicked - authentication not yet implemented`);
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <div className="brand">Tourism Orchestrator</div>
+        <div className="brand" onClick={scrollToTop} style={{ cursor: 'pointer' }}>Tourism Orchestrator</div>
         <div className="nav-center">
           <button className="nav-btn" onClick={() => scrollToSection('features')}>Features</button>
           <button className="nav-btn" onClick={() => scrollToSection('about')}>About</button>
