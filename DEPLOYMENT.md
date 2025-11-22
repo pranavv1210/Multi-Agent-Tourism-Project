@@ -27,6 +27,22 @@
 - If you previously set Root Directory to "backend", delete it and save
 - Render will look for runtime.txt in the repository root to determine Python version
 
+### Alternative Configuration (Root Directory = `backend`)
+If you prefer to set Render's Root Directory to `backend` instead of leaving it blank:
+1. Set **Root Directory** to `backend`.
+2. Place a copy of `runtime.txt` inside `backend/` (already added).
+3. Build Command can then be simplified to `pip install -r requirements.txt` if you keep the new root-level `requirements.txt` delegator, OR `pip install -r requirements.txt` (which in that context refers to `backend/requirements.txt`).
+4. Start Command (with Root Directory = backend): `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+5. Ensure both `runtime.txt` files (root and backend) specify the same version.
+
+This gives you two working deployment patterns:
+| Pattern | Root Directory | runtime.txt location | Build Command | Start Command |
+|---------|----------------|----------------------|---------------|---------------|
+| Recommended | (blank) | `/runtime.txt` | `pip install -r backend/requirements.txt` | `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Alternative | `backend` | `backend/runtime.txt` | `pip install -r requirements.txt` (delegated) | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+
+After switching approaches, always Clear Build Cache in Render before redeploying to force Python version re-selection.
+
 ### Option 2: Using render.yaml (Infrastructure as Code)
 Create `render.yaml` in project root:
 ```yaml
