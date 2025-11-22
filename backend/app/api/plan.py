@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Set
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from ..agents.parent_agent import (
@@ -18,6 +18,12 @@ from ..agents.parent_agent import (
 from ..utils.logging_config import logger
 
 router = APIRouter(tags=["plan"])
+
+
+@router.options("/plan")
+async def plan_options():
+    """Handle CORS preflight for /api/plan endpoint."""
+    return Response(status_code=200)
 
 
 class PlanRequest(BaseModel):
