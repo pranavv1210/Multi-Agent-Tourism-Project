@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { planRequest } from '../api/planApi.js';
 
-const InputForm = ({ onResult, setLoading, setError }) => {
+const InputForm = ({ onResult, setLoading, setError, clearOnMount = false, setShowColdStart }) => {
   const [message, setMessage] = useState('');
   const [wantWeather, setWantWeather] = useState(true);
   const [wantPlaces, setWantPlaces] = useState(true);
   const [isListening, setIsListening] = useState(false);
 
-  // Load persisted state
+  // On mount, clear textbox if requested
   useEffect(() => {
-    const savedMsg = localStorage.getItem('lastQuery');
+    if (clearOnMount) {
+      setMessage('');
+      localStorage.removeItem('lastQuery');
+    } else {
+      const savedMsg = localStorage.getItem('lastQuery');
+      if (savedMsg) setMessage(savedMsg);
+    }
     const savedWeather = localStorage.getItem('wantWeather');
     const savedPlaces = localStorage.getItem('wantPlaces');
-    if (savedMsg) setMessage(savedMsg);
     if (savedWeather !== null) setWantWeather(savedWeather === 'true');
     if (savedPlaces !== null) setWantPlaces(savedPlaces === 'true');
-  }, []);
+  }, [clearOnMount]);
 
   // Persist changes
   useEffect(() => { localStorage.setItem('lastQuery', message); }, [message]);

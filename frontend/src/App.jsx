@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar.jsx';
 import Landing from './components/Landing.jsx';
 import InputForm from './components/InputForm.jsx';
@@ -14,10 +14,13 @@ function App() {
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [theme, setTheme] = useState('default');
-  const [showSearchBar, setShowSearchBar] = useState(true);
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [showTextbox, setShowTextbox] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showWelcome, setShowWelcome] = useState(true);
   const [welcomeComplete, setWelcomeComplete] = useState(false);
+  const [showColdStart, setShowColdStart] = useState(false);
+  const scrollDir = useRef('up');
 
   // Handle welcome animation
   useEffect(() => {
@@ -28,30 +31,27 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle scroll to hide/show search bar
+  // Mobile scroll: hide navbar and textbox on scroll down, show on scroll up
   useEffect(() => {
-    if (!hasSearched) return;
-
     const handleScroll = () => {
+      if (window.innerWidth > 768) return; // Only on mobile/tablet
       const currentScrollY = window.scrollY;
-      const searchBar = document.querySelector('.search-bar-sticky');
-      
-      if (!searchBar) return;
-      
-      const searchBarRect = searchBar.getBoundingClientRect();
-      const searchBarTop = searchBar.offsetTop;
-      
-      // Show search bar only when user scrolls back to its original position
-      if (currentScrollY <= searchBarTop - 80) {
-        setShowSearchBar(true);
-      } else {
-        setShowSearchBar(false);
+      if (currentScrollY > lastScrollY && currentScrollY > 40) {
+        // Scrolling down
+        setShowNavbar(false);
+        setShowTextbox(false);
+        scrollDir.current = 'down';
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up
+        setShowNavbar(true);
+        setShowTextbox(true);
+        scrollDir.current = 'up';
       }
+      setLastScrollY(currentScrollY);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [hasSearched]);
+  }, [lastScrollY]);
 
   // Load shared plan from URL on mount
   useEffect(() => {
@@ -107,11 +107,13 @@ function App() {
           </div>
         </div>
       )}
-      {welcomeComplete && <Navbar />}
+      {welcomeComplete && showNavbar && <Navbar />}
       {welcomeComplete && !hasSearched && (
         <>
           <Landing>
-            <InputForm onResult={handleResult} setLoading={setLoading} setError={setError} />
+            {showTextbox && (
+              <InputForm onResult={handleResult} setLoading={setLoading} setError={setError} clearOnMount={true} setShowColdStart={setShowColdStart} />
+            )}
           </Landing>
           <Features />
           <HowItWorks />
@@ -127,9 +129,11 @@ function App() {
       )}
       {welcomeComplete && hasSearched && (
         <main className="results-area">
-          <div className={`search-bar-sticky ${showSearchBar ? 'visible' : 'hidden'}`}>
-            <InputForm onResult={handleResult} setLoading={setLoading} setError={setError} />
-          </div>
+          {showTextbox && (
+            <div className="search-bar-sticky visible">
+              <InputForm onResult={handleResult} setLoading={setLoading} setError={setError} clearOnMount={true} setShowColdStart={setShowColdStart} />
+            </div>
+          )}
           {loading && (
             <div className="loading-container">
               <div className="plane-loader">
