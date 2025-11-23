@@ -57,13 +57,18 @@ def detect_intent(message: str) -> Set[str]:
     """Detect user intent for weather / places.
 
     Returns a set containing any of {"weather", "places"}.
-    Defaults to empty set if ambiguous; caller may treat empty as both.
+    If both are present, returns both. If neither, defaults to only places.
     """
     lowered = message.lower()
     intents: Set[str] = set()
-    if any(k in lowered for k in INTENT_WEATHER_KEYWORDS):
+    found_weather = any(k in lowered for k in INTENT_WEATHER_KEYWORDS)
+    found_places = any(k in lowered for k in INTENT_PLACES_KEYWORDS)
+    if found_weather:
         intents.add("weather")
-    if any(k in lowered for k in INTENT_PLACES_KEYWORDS):
+    if found_places:
+        intents.add("places")
+    if not intents:
+        # If neither intent is found, default to places only
         intents.add("places")
     logger.debug("Detected intent", intents=list(intents))
     return intents
@@ -122,7 +127,7 @@ async def orchestrate(place_candidate: Optional[str], want: List[str]) -> Dict[s
             "lon": None,
             "weather": None,
             "places": None,
-            "text": f"I couldn't find '{place_candidate}' on the map. Please check the spelling or try a different location.",
+            "text": f"I don’t know this place exists.",
             "errors": [f"Location '{place_candidate}' not found"],
         }
 
@@ -150,28 +155,25 @@ async def orchestrate(place_candidate: Optional[str], want: List[str]) -> Dict[s
         places_geo = raw_places
         places_block = [p.get("name") for p in raw_places]
 
-    # Compose natural language summary
+    # Compose natural language summary based on requested intent
     summary_parts: List[str] = []
 
-    if weather_block:
-        if weather_block.get("error"):
-            errors.append(weather_block["error"])
-        else:
-            temp = weather_block.get("temperature")
-            precip = weather_block.get("precipitation_probability")
-            if temp is not None and precip is not None:
-                summary_parts.append(
-                    f"It’s currently {temp:.0f}°C with a {precip}% chance of precipitation."
-                )
-            elif temp is not None:
-                summary_parts.append(f"Current temperature is {temp:.0f}°C.")
+    if "weather" in want and weather_block and not weather_block.get("error"):
+        temp = weather_block.get("temperature")
+        precip = weather_block.get("precipitation_probability")
+        if temp is not None and precip is not None:
+            summary_parts.append(f"In {geocode.display_name} it’s currently {temp:.0f}°C with a chance of {precip}% to rain.")
+        elif temp is not None:
+            summary_parts.append(f"In {geocode.display_name} it’s currently {temp:.0f}°C.")
     elif "weather" in want:
         errors.append("Weather service unavailable")
 
-    if places_block:
-        if places_block:
-            listed = ", ".join(places_block)
-            summary_parts.append(f"Places you can visit: {listed}.")
+    if "places" in want and places_block:
+        listed = "\n".join(places_block)
+        if "weather" in want and weather_block and not weather_block.get("error"):
+            summary_parts.append(f"And these are the places you can go:\n{listed}")
+        else:
+            summary_parts.append(f"In {geocode.display_name} these are the places you can go, \n{listed}")
     elif "places" in want:
         errors.append("Places service unavailable")
 
